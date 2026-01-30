@@ -1,0 +1,199 @@
+:root {
+  --bg-obsidian: #0a0a0d;
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --accent-shield: #4a9eff;
+  --accent-alert: #ff4a4a;
+  --accent-success: #4aff9e;
+  --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: radial-gradient(circle at top center, #1a1a24 0%, #0a0a0d 100%);
+  color: #fff;
+  font-family: var(--font-inter);
+  min-height: 100vh;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  padding: 4rem 2rem 2rem;
+  text-align: center;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 600px;
+}
+
+.mode-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.4rem;
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 0.8rem 1.5rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.mode-btn.active {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+textarea,
+input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  color: #fff;
+  font-size: 1rem;
+  font-family: var(--font-inter);
+  transition: all 0.3s ease;
+}
+
+textarea:focus,
+input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Primary Action Button */
+.btn-primary {
+  background: #fff;
+  color: #000;
+  border: none;
+  border-radius: 16px;
+  padding: 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  width: 100%;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(255, 255, 255, 0.2);
+  background: #f0f0f0;
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Icon / Feature Buttons */
+.btn-icon {
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.4);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-icon.active {
+  background: rgba(74, 158, 255, 0.1);
+  color: var(--accent-shield);
+  border-color: rgba(74, 158, 255, 0.3);
+}
+
+button:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+/* Animations */
+@keyframes pulse-soft {
+  0% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+
+  100% {
+    opacity: 0.4;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-soft 4s infinite ease-in-out;
+}
+
+/* Math Sandbox specific */
+.math-sandbox {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.6;
+}
+
+.math-step {
+  margin-bottom: 0.6rem;
+  border-left: 2px solid var(--accent-shield);
+  padding-left: 1rem;
+}

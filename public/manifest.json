@@ -1,0 +1,17 @@
+{
+    "name": "Digital Vault",
+    "short_name": "Vault",
+    "description": "Zero-Knowledge Secure Digital Vault",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0a0a0d",
+    "theme_color": "#0a0a0d",
+    "icons": [
+        {
+            "src": "/vault_icon.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
