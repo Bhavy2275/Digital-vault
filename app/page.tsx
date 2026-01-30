@@ -90,15 +90,36 @@ export default function Home() {
 
   const processBiometrics = async () => {
     if (!window.PublicKeyCredential) {
-      setError("Biometrics not supported on this device.");
+      setError("Biometrics (WebAuthn) not supported in this environment (requires HTTPS/Localhost).");
       return;
     }
-    // WebAuthn base logic placeholder for "Modern Feature" demo
+
     try {
-      // In a real app, this would verify with a hardware key
-      alert("Biometric signal received. Proceeding...");
-    } catch (e) {
-      setError("Biometric authentication failed.");
+      // High-level WebAuthn API Call for "Modern Feature"
+      // This triggers the OS Biometric (TouchID/FaceID) prompt
+      const challenge = new Uint8Array(32);
+      window.crypto.getRandomValues(challenge);
+
+      const options: CredentialCreationOptions = {
+        publicKey: {
+          challenge,
+          rp: { name: "Digital Vault" },
+          user: {
+            id: new Uint8Array(16),
+            name: "vault-user@local",
+            displayName: "Vault User"
+          },
+          pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+          authenticatorSelection: { userVerification: "required" },
+          timeout: 60000
+        }
+      };
+
+      await navigator.credentials.create(options);
+      setState('INPUT');
+      alert("Identity Verified via Biometrics.");
+    } catch (e: any) {
+      setError("Biometric Authentication Cancelled or Failed.");
     }
   };
 
@@ -133,11 +154,14 @@ export default function Home() {
         registerAttempt('Success');
       } else {
         let packedBlob = content;
-        if (useStegano && (selectedImage || content.startsWith('data:image')) && canvasRef.current) {
-          const imgSrc = selectedImage || content;
+
+        const isDataURL = content.startsWith('data:image');
+        if (useStegano && (selectedImage || isDataURL) && canvasRef.current) {
+          const imgSrc = isDataURL ? content : selectedImage!;
           const img = new Image();
           img.src = imgSrc;
           await new Promise(resolve => img.onload = resolve);
+
           const ctx = canvasRef.current.getContext('2d', { willReadFrequently: true });
           if (ctx) {
             canvasRef.current.width = img.width;
@@ -145,6 +169,10 @@ export default function Home() {
             ctx.drawImage(img, 0, 0);
             const imageData = ctx.getImageData(0, 0, img.width, img.height);
             packedBlob = extractDataFromImage(imageData);
+
+            if (!packedBlob) {
+              throw new Error("No hidden data found in this image.");
+            }
           }
         }
 
@@ -216,7 +244,7 @@ export default function Home() {
 
                 <div className="space-y-6">
                   <div className="flex justify-between items-center px-1">
-                    <div className="flex gap-3">
+                    <div className="flex gap-6">
                       <button
                         onClick={() => setUseStegano(!useStegano)}
                         className={`btn-icon ${useStegano ? 'active' : ''}`}

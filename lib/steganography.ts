@@ -3,22 +3,25 @@
  * Academic Focus: Data Hiding and Pixel Manipulation
  */
 
+const SEPARATOR = '###';
+
 /**
  * Encodes a string into the least significant bits of an image.
  */
 export const hideDataInImage = (imageData: ImageData, data: string): ImageData => {
-    const binaryData = stringToBinary(data + '###'); // Terminating sequence
+    const binaryData = stringToBinary(data + SEPARATOR);
     const pixels = imageData.data;
 
-    if (binaryData.length > pixels.length * 0.75) {
+    // We only use RGB channels (3 bits per pixel)
+    if (binaryData.length > (pixels.length / 4) * 3) {
         throw new Error('Data too large for this image');
     }
 
     for (let i = 0; i < binaryData.length; i++) {
         const bit = parseInt(binaryData[i]);
-        // Only modify R, G, B channels (skipping Alpha)
-        const pixelIndex = Math.floor(i / 3) * 4 + (i % 3);
-        pixels[pixelIndex] = (pixels[pixelIndex] & 0xFE) | bit;
+        // Skip the Alpha channel (index 3, 7, 11...)
+        const pixelIdx = Math.floor(i / 3) * 4 + (i % 3);
+        pixels[pixelIdx] = (pixels[pixelIdx] & 0xFE) | bit;
     }
 
     return imageData;
@@ -30,26 +33,28 @@ export const hideDataInImage = (imageData: ImageData, data: string): ImageData =
 export const extractDataFromImage = (imageData: ImageData): string => {
     const pixels = imageData.data;
     let binaryString = '';
-    const bitLimit = pixels.length * 0.75; // Optimization limit
 
+    // We process pixels one by one to extract bits
+    // This is highly efficient due to the terminator check
     for (let i = 0; i < pixels.length; i++) {
-        if (i % 4 === 3) continue; // Skip transparency
+        if (i % 4 === 3) continue; // Skip Alpha
+
         binaryString += (pixels[i] & 1).toString();
 
-        // Periodically check for terminator to avoid processing entire huge image
-        if (binaryString.length % 800 === 0) {
-            const currentData = binaryToString(binaryString);
-            if (currentData.includes('###')) break;
+        // Check for terminator every byte (8 bits) to save resources
+        if (binaryString.length > 0 && binaryString.length % 8 === 0) {
+            const lastChar = binaryFromByte(binaryString.slice(-8));
+            // Optimization: If we find the final separator character, stop early
+            if (lastChar === SEPARATOR[SEPARATOR.length - 1]) {
+                const fullString = binaryToString(binaryString);
+                if (fullString.endsWith(SEPARATOR)) {
+                    return fullString.slice(0, -SEPARATOR.length);
+                }
+            }
         }
-
-        if (binaryString.length > bitLimit) break;
     }
 
-    const fullData = binaryToString(binaryString);
-    const terminatorIndex = fullData.indexOf('###');
-
-    if (terminatorIndex === -1) return '';
-    return fullData.substring(0, terminatorIndex);
+    return '';
 };
 
 // Helpers
@@ -59,12 +64,16 @@ const stringToBinary = (str: string): string => {
     }).join('');
 };
 
+const binaryFromByte = (byte: string): string => {
+    return String.fromCharCode(parseInt(byte, 2));
+};
+
 const binaryToString = (binary: string): string => {
     let str = '';
     for (let i = 0; i < binary.length; i += 8) {
         const byte = binary.substr(i, 8);
         if (byte.length < 8) break;
-        str += String.fromCharCode(parseInt(byte, 2));
+        str += binaryFromByte(byte);
     }
     return str;
 };

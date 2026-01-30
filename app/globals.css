@@ -52,10 +52,10 @@ main {
 
 .mode-toggle {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   margin-bottom: 2.5rem;
   background: rgba(255, 255, 255, 0.03);
-  padding: 0.4rem;
+  padding: 0.5rem;
   border-radius: 16px;
   border: 1px solid var(--glass-border);
 }
@@ -131,16 +131,18 @@ input:focus {
 
 /* Icon / Feature Buttons */
 .btn-icon {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.05);
   color: rgba(255, 255, 255, 0.4);
   border: 1px solid var(--glass-border);
-  border-radius: 12px;
-  padding: 0.75rem;
+  border-radius: 14px;
+  padding: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 48px;
+  height: 48px;
 }
 
 .btn-icon:hover {
