@@ -170,14 +170,24 @@ export default function Home() {
             const imageData = ctx.getImageData(0, 0, img.width, img.height);
             packedBlob = extractDataFromImage(imageData);
 
+            console.log('Extracted data length:', packedBlob.length);
+            console.log('Extracted preview:', packedBlob.substring(0, 100));
+
             if (!packedBlob) {
               throw new Error("No hidden data found in this image.");
             }
           }
         }
 
+
+        console.log('Decrypting blob of length:', packedBlob.length);
         const plaintext = decryptMessage(packedBlob, password);
-        if (!plaintext) { setError('Decryption failed. Invalid password or format.'); registerAttempt('Failed'); return; }
+
+        if (!plaintext) {
+          setError('Decryption failed. Verify your password and ensure the image/text contains valid encrypted data.');
+          registerAttempt('Failed');
+          return;
+        }
         setResultBlob(plaintext);
         registerAttempt('Success');
       }
@@ -271,9 +281,15 @@ export default function Home() {
 
                   {useStegano && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-4">
-                      <div className="border border-dashed border-white/10 rounded-xl p-4 text-center relative group overflow-hidden bg-black/20">
+                      <div className="border border-dashed border-white/10 rounded-xl p-4 text-center relative group overflow-hidden bg-black/20 min-h-[120px] flex items-center justify-center">
                         {selectedImage ? (
-                          <img src={selectedImage} alt="Selected" className="max-h-24 mx-auto rounded blur-sm" />
+                          <div className="w-full h-full flex items-center justify-center">
+                            <img
+                              src={selectedImage}
+                              alt="Selected"
+                              className="max-h-[100px] max-w-full object-contain rounded blur-sm"
+                            />
+                          </div>
                         ) : (
                           <div className="py-2">
                             <ImageIcon className="w-6 h-6 mx-auto mb-2 opacity-20" />
@@ -331,8 +347,14 @@ export default function Home() {
                     <span>Verified Zero-Knowledge</span>
                   </div>
                   {mode === 'ENCRYPT' && useStegano ? (
-                    <div className="space-y-4">
-                      <img src={resultBlob} alt="Result" className="max-w-[180px] mx-auto rounded-xl border border-white/10" />
+                    <div className="space-y-4 flex flex-col items-center">
+                      <div className="w-full max-w-[200px] h-[200px] flex items-center justify-center bg-black/20 rounded-xl border border-white/10 p-2">
+                        <img
+                          src={resultBlob}
+                          alt="Result"
+                          className="max-w-full max-h-full object-contain rounded-lg"
+                        />
+                      </div>
                       <p className="text-[10px] uppercase text-center text-accent-shield">Data hidden in pixels</p>
                     </div>
                   ) : (
