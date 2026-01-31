@@ -54,6 +54,8 @@ export default function Home() {
     setEntropyCount(0);
     setState('ENTROPY');
     setSelectedImage(null);
+    setUseStegano(false);
+    setShowMath(false);
   }, []);
 
   useInactivityTimer(reset, 30000);
@@ -153,14 +155,38 @@ export default function Home() {
         }
         registerAttempt('Success');
       } else {
+        // DECRYPTION MODE
         let packedBlob = content;
 
-        const isDataURL = content.startsWith('data:image');
-        if (useStegano && (selectedImage || isDataURL) && canvasRef.current) {
+        // If steganography is enabled, extract from image
+        if (useStegano) {
+          const isDataURL = content.startsWith('data:image');
+          const hasImage = selectedImage || isDataURL;
+
+          if (!hasImage) {
+            setError('Steganography enabled but no image provided. Upload an encrypted image.');
+            return;
+          }
+
+          if (!canvasRef.current) {
+            setError('Canvas not available for image processing.');
+            return;
+          }
+
           const imgSrc = isDataURL ? content : selectedImage!;
           const img = new Image();
           img.src = imgSrc;
-          await new Promise(resolve => img.onload = resolve);
+
+          try {
+            await new Promise((resolve, reject) => {
+              img.onload = resolve;
+              img.onerror = () => reject(new Error('Failed to load image'));
+              setTimeout(() => reject(new Error('Image load timeout')), 5000);
+            });
+          } catch (e: any) {
+            setError(`Image load failed: ${e.message}`);
+            return;
+          }
 
           const ctx = canvasRef.current.getContext('2d', { willReadFrequently: true });
           if (ctx) {
@@ -170,24 +196,25 @@ export default function Home() {
             const imageData = ctx.getImageData(0, 0, img.width, img.height);
             packedBlob = extractDataFromImage(imageData);
 
-            console.log('Extracted data length:', packedBlob.length);
-            console.log('Extracted preview:', packedBlob.substring(0, 100));
+            console.log('✓ Extracted data length:', packedBlob.length);
+            console.log('✓ Extracted preview:', packedBlob.substring(0, 100));
 
-            if (!packedBlob) {
-              throw new Error("No hidden data found in this image.");
+            if (!packedBlob || packedBlob.length === 0) {
+              throw new Error("No hidden data found. Ensure you uploaded the encrypted image.");
             }
           }
         }
 
-
-        console.log('Decrypting blob of length:', packedBlob.length);
+        console.log('→ Attempting decryption, blob length:', packedBlob.length);
         const plaintext = decryptMessage(packedBlob, password);
+        console.log('→ Decryption result:', plaintext ? 'SUCCESS' : 'FAILED');
 
         if (!plaintext) {
-          setError('Decryption failed. Verify your password and ensure the image/text contains valid encrypted data.');
+          setError('Decryption failed. Check: (1) Correct password (2) Valid encrypted data (3) Same steganography mode used for encryption');
           registerAttempt('Failed');
           return;
         }
+
         setResultBlob(plaintext);
         registerAttempt('Success');
       }
